@@ -1,9 +1,56 @@
 import xlwings
 import re
 from smart_value.tools import *
-from smart_value.tools.find_docs import models_folder_path as models_folder_path
-from smart_value.tools.find_docs import macro_monitor_file_path as macro_monitor_file_path
-from smart_value.tools.find_docs import stock_monitor_file_path as stock_monitor_file_path
+from smart_value.tools.find_docs import models_folder_path
+from smart_value.tools.find_docs import macro_monitor_file_path
+from smart_value.tools.find_docs import stock_monitor_file_path
+
+model_pos = {
+    # Left side of the company info
+    "symbol": "C3",
+    "name": "C4",
+    "last_revision": "C5",
+    "next_review": "D6",
+    "watchlist": "C7",
+    "comp_group": "D7",
+    # Right side of the company info
+    "price": "G3",
+    "price_currency": "H3",
+    "shares_outstanding": "G4",
+    "report_currency": "G6",
+    "fx_rate": "G7",
+    # US market yields
+    "us_riskfree": "C10",
+    "us_bbb_yield": "C11",
+    "us_required_return": "C12",
+    # China market yields
+    "cn_riskfree": "C14",
+    "cn_on_bbb_yield": "C15",
+    "cn_off_bbb_yield": "C16",
+    "cn_required_return": "C17",
+    # HK and other market yields
+    "hk_required_return": "D12",
+    "other_required_return": "D17",
+    # Normalized Cost Structure
+    "cogs": 'C20',
+    "op_exp_less_da": 'C21',
+    "interest": 'C22',
+    "change_of_wc": 'C23',
+    "non_controlling_interests": 'C24',
+    "pre_tax_profit": 'C25',
+    # Business Indicators
+    "pre_tax_roa": 'G20',
+    "after_tax_growth": 'G21',
+    # Price Indicators
+    "pb_ratio": 'G23',
+    "ep_ratio": 'G24',
+    "payout_ratio": 'G25',
+    "dp_ratio": 'G26',
+    # Valuation
+    "lower_value": 'C29',
+    "upper_value": 'D29',
+    "value": 'F29'
+}
 
 
 def update_monitor(quick=False):
@@ -37,7 +84,7 @@ def read_opportunity(opportunities_path, quick=False):
     """Read all the opportunities at the opportunities_path.
 
     :param opportunities_path: path of the model in the opportunities' folder
-    :param quick: the option to skip updating the valuations
+    :param quick: the option to skip updating the models
     :return: an Asset object
     """
 
@@ -46,13 +93,12 @@ def read_opportunity(opportunities_path, quick=False):
     with xlwings.App(visible=False) as app:
         xl_book = app.books.open(opportunities_path)
         dash_sheet = xl_book.sheets('Dashboard')
-        asset_sheet = xl_book.sheets('Asset_Model')
         if r_stock.match(str(opportunities_path)):
-            company = model.StockModel(dash_sheet.range('C3').value, "yq_quote")
+            company = model.StockModel(dash_sheet.range(model_pos["symbol"]).value, "yq_quote")
             if quick is False:
                 model.update_dashboard(dash_sheet, company)  # Update
             xl_book.save(opportunities_path)  # xls must be saved to update the values
-            op = MonitorStock(dash_sheet, asset_sheet)  # the MonitorStock object representing an opportunity
+            op = MonitorStock(dash_sheet)  # the MonitorStock object representing an opportunity
         else:
             print(f"'{opportunities_path}' is incorrect")
         xl_book.close()
@@ -74,21 +120,27 @@ def update_opportunities(s_monitor, op_list):
     for op in op_list:
         monitor_sheet.range((r, 2)).value = op.symbol
         monitor_sheet.range((r, 3)).value = op.name
+        # Price section
         monitor_sheet.range((r, 4)).value = op.price
         monitor_sheet.range((r, 5)).value = op.price_currency
-        monitor_sheet.range((r, 6)).value = op.current_excess_return
-        monitor_sheet.range((r, 7)).value = op.frd_dividend
-        monitor_sheet.range((r, 8)).value = f'=D{r}/I{r}-1'
-        monitor_sheet.range((r, 9)).value = op.next_buy_price
-        monitor_sheet.range((r, 10)).value = op.next_buy_shares
-        monitor_sheet.range((r, 11)).value = op.exp_exit_price
-        monitor_sheet.range((r, 12)).value = op.worst_case_price
-        monitor_sheet.range((r, 13)).value = op.exp_value
-        monitor_sheet.range((r, 14)).value = op.breakeven_price
-        monitor_sheet.range((r, 15)).value = op.lfy_date
-        monitor_sheet.range((r, 16)).value = op.next_review
-        monitor_sheet.range((r, 17)).value = op.exchange
-        monitor_sheet.range((r, 18)).value = op.inv_category
+        monitor_sheet.range((r, 6)).value = op.ep_ratio
+        monitor_sheet.range((r, 7)).value = op.dp_ratio
+        # Valuation section
+        monitor_sheet.range((r, 8)).value = op.value
+        monitor_sheet.range((r, 9)).value = op.lower_value
+        monitor_sheet.range((r, 10)).value = op.upper_value
+        # Miscellaneous section
+        monitor_sheet.range((r, 11)).value = op.watchlist
+        monitor_sheet.range((r, 12)).value = op.comp_group
+        monitor_sheet.range((r, 13)).value = op.last_revision
+        monitor_sheet.range((r, 14)).value = op.next_review
+        # Cost Structure section
+        monitor_sheet.range((r, 15)).value = op.cogs
+        monitor_sheet.range((r, 16)).value = op.op_exp_less_da
+        monitor_sheet.range((r, 17)).value = op.interest
+        monitor_sheet.range((r, 18)).value = op.change_of_wc
+        monitor_sheet.range((r, 19)).value = op.non_controlling_interests
+        monitor_sheet.range((r, 20)).value = op.pre_tax_profit
         r += 1
     print(f"Total {len(op_list)} opportunities Updated")
 
@@ -100,34 +152,28 @@ class MonitorStock:
     """
 
     def __init__(self, dash_sheet):
-        # Left side of the company info
-        self.symbol = dash_sheet.range('C3').value
-        self.name = dash_sheet.range('C4').value
-        self.last_revision = dash_sheet.range('C5').value
-        self.next_review = dash_sheet.range('D6').value
-        self.watchlist = dash_sheet.range('C7').value
-        # Right side of the company info
-        self.price = dash_sheet.range('G3').value
-        self.price_currency = dash_sheet.range('H3').value
-        # US market yields
-        self.us_riskfree = dash_sheet.range('C10').value
-        self.us_bbb_yield = dash_sheet.range('C11').value
-        self.us_required_return = dash_sheet.range('C12').value
-        # China market yields
-        self.cn_riskfree = dash_sheet.range('C14').value
-        self.cn_bbb_yield = dash_sheet.range('C15').value
-        self.cn_required_return = dash_sheet.range('C16').value
-        # HK and other market yields
-        self.hk_required_return = dash_sheet.range('D12').value
-        self.other_required_return = dash_sheet.range('D17').value
-        # Normalized Cost Structure
-        self.cogs = dash_sheet.range('C20').value
-        self.op_exp_less_da = dash_sheet.range('C21').value
-        self.interest = dash_sheet.range('C22').value
-        self.change_of_wc = dash_sheet.range('C23').value
-        self.non_controlling_interests = dash_sheet.range('C24').value
-        self.pre_tax_profit = dash_sheet.range('C25').value
-        # Valuation
-        self.lower_value = dash_sheet.range('C29').value
-        self.upper_value = dash_sheet.range('D29').value
-        self.value = dash_sheet.range('F29').value
+        self.symbol = dash_sheet.range(model_pos["symbol"]).value
+        self.name = dash_sheet.range(model_pos["name"]).value
+        # Price section
+        self.price = dash_sheet.range(model_pos["price"]).value
+        self.price_currency = dash_sheet.range(model_pos["price_currency"]).value
+        self.ep_ratio = dash_sheet.range(model_pos["ep_ratio"]).value
+        self.dp_ratio = dash_sheet.range(model_pos["dp_ratio"]).value
+        # Valuation section
+        self.value = dash_sheet.range(model_pos["value"]).value
+        self.lower_value = dash_sheet.range(model_pos["lower_value"]).value
+        self.upper_value = dash_sheet.range(model_pos["upper_value"]).value
+        # Miscellaneous section
+        self.watchlist = dash_sheet.range(model_pos["watchlist"]).value
+        self.comp_group = dash_sheet.range(model_pos["comp_group"]).value
+        self.last_revision = dash_sheet.range(model_pos["last_revision"]).value
+        self.next_review = dash_sheet.range(model_pos["next_review"]).value
+        # Cost Structure section
+        self.cogs = dash_sheet.range(model_pos["cogs"]).value
+        self.op_exp_less_da = dash_sheet.range(model_pos["op_exp_less_da"]).value
+        self.interest = dash_sheet.range(model_pos["interest"]).value
+        self.change_of_wc = dash_sheet.range(model_pos["change_of_wc"]).value
+        self.non_controlling_interests = dash_sheet.range(model_pos["non_controlling_interests"]).value
+        self.pre_tax_profit = dash_sheet.range(model_pos["pre_tax_profit"]).value
+
+

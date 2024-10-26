@@ -61,6 +61,7 @@ def read_marco():
     monitor_wb.close()
     return MonitorMarco(us_riskfree)
 
+
 class MonitorMarco:
     """Monitor class for Macro
 

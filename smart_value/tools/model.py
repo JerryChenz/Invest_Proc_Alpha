@@ -9,6 +9,7 @@ import smart_value.tools.marco_monitor
 from smart_value.data import yf_data as yf
 from smart_value.data import yq_data as yq
 from smart_value.stock import Stock
+from smart_value.tools.stock_monitor import model_pos
 
 
 def update_model(ticker, model_name, model_path, source):
@@ -38,10 +39,11 @@ def update_dashboard(dash_sheet, stock):
     """
 
     marco = smart_value.tools.marco_monitor.read_marco()
-    dash_sheet.range('C10').value = marco.us_riskfree
-
-    dash_sheet.range('I4').value = stock.price[0]
-    dash_sheet.range('I12').value = stock.fx_rate
+    dash_sheet.range(model_pos["us_riskfree"]).value = marco.us_riskfree
+    dash_sheet.range(model_pos["cn_riskfree"]).value = marco.cn_riskfree
+    # tbc on marco update
+    dash_sheet.range(model_pos["price"]).value = stock.price[0]
+    dash_sheet.range(model_pos["fx_rate"]).value = stock.fx_rate
 
 
 class StockModel(Stock):
@@ -53,6 +55,8 @@ class StockModel(Stock):
         :param source: data source selector
         """
         super().__init__(symbol)
+        self.report_currency = None
+        self.fx_rate = None
         self.source = source
         self.load_attributes()
 
@@ -99,19 +103,9 @@ class StockModel(Stock):
         """
 
         self.name = ticker_data.name
-        self.sector = ticker_data.sector
         self.price = ticker_data.price
-        self.exchange = ticker_data.exchange
-        self.shares = ticker_data.shares
+        self.shares_outstanding = ticker_data.shares
         self.report_currency = ticker_data.report_currency
-        self.last_dividend = ticker_data.last_dividend
-        self.buyback = ticker_data.buyback
-        self.annual_bs = ticker_data.annual_bs
-        self.quarter_bs = ticker_data.quarter_bs
-        self.cf_df = ticker_data.cf_df
-        self.is_df = ticker_data.is_df
-        self.last_fy = ticker_data.annual_bs.columns[0]
-        self.most_recent_quarter = ticker_data.most_recent_quarter
 
     def load_quote(self, market_price, price_currency, report_currency):
         """Get the quick market quote
