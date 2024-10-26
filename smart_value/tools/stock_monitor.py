@@ -48,7 +48,8 @@ def read_opportunity(opportunities_path, quick=False):
         xl_book = app.books.open(opportunities_path)
         dash_sheet = xl_book.sheets('Dashboard')
         if r_stock.match(str(opportunities_path)):
-            company = model.StockModel(dash_sheet.range(model_pos["symbol"]).value, "yq_quote")
+            company = model.StockModel(dash_sheet.range(model_pos["symbol"]).value,
+                                       dash_sheet.range(model_pos["report_currency"]), "yq_quote")
             if quick is False:
                 model.update_dashboard(dash_sheet, company)  # Update
             xl_book.save(opportunities_path)  # xls must be saved to update the values

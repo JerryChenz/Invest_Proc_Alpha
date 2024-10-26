@@ -76,13 +76,13 @@ def update_dashboard(dash_sheet, stock):
 class StockModel(Stock):
     """Stock model class"""
 
-    def __init__(self, symbol, source):
+    def __init__(self, symbol, report_currency, source):
         """
         :param symbol: string ticker of the stock
         :param source: data source selector
         """
         super().__init__(symbol)
-        self.report_currency = None
+        self.report_currency = report_currency
         self.fx_rate = None
         self.source = source
         self.load_attributes()
@@ -91,54 +91,19 @@ class StockModel(Stock):
         """data source selector."""
         try:
             if self.source == "yf":
-                ticker_data = yf.YfData(self.symbol)
-                self.load_data(ticker_data)
-                self.fx_rate = yf.get_forex(self.report_currency, self.price[1])
-
-            elif self.source == "yf_quote":
                 market_price = yf.get_quote(self.symbol, "last_price")
                 price_currency = yf.get_quote(self.symbol, "currency")
-                report_currency = yf.get_info(self.symbol, "financialCurrency")
-                self.load_quote(market_price, price_currency, report_currency)
-                self.fx_rate = yf.get_forex(report_currency, price_currency)
+                self.price = [market_price, price_currency]
+                self.fx_rate = yf.get_forex(self.report_currency, price_currency)
 
             elif self.source == "yq":
-                ticker_data = yq.YqData(self.symbol)
-                self.load_data(ticker_data)
-                self.fx_rate = yf.get_forex(self.report_currency, self.price[1])  # Use the better yfinance Forex
-
-            elif self.source == "yq_quote":
                 quote = yq.get_quote(self.symbol)
                 market_price = quote[0]
                 price_currency = quote[1]
-                report_currency = quote[2]
-                self.load_quote(market_price, price_currency, report_currency)
-                self.fx_rate = yf.get_forex(report_currency, price_currency)  # Use the better yfinance Forex
-
-            elif self.source == "fmp":
-                pass
+                self.price = [market_price, price_currency]
+                self.fx_rate = yf.get_forex(self.report_currency, price_currency)  # Use the better yfinance Forex
 
             else:
                 raise KeyError(f"The source keyword {self.source} is invalid!")
         except KeyError as error:
             print('Caught this error: ' + repr(error))
-
-    def load_data(self, ticker_data):
-        """Scrap the financial_data from yahoo finance
-
-        :param ticker_data: financial data object
-        """
-
-        self.name = ticker_data.name
-        self.price = ticker_data.price
-
-    def load_quote(self, market_price, price_currency, report_currency):
-        """Get the quick market quote
-
-        :param market_price: current or delayed market price
-        :param price_currency: currency symbol of the market_price
-        :param report_currency: currency symbol of the financial statements
-        """
-
-        self.price = [market_price, price_currency]
-        self.fx_rate = yf.get_forex(report_currency, price_currency)
