@@ -1,34 +1,54 @@
-import xlwings
-import pathlib
-import shutil
-import os
-from datetime import datetime
-import re
-
-import smart_value.tools.marco_monitor
+import smart_value.tools.macro_monitor as macro_monitor
 from smart_value.data import yf_data as yf
 from smart_value.data import yq_data as yq
 from smart_value.stock import Stock
-from smart_value.tools.stock_monitor import model_pos
 
-
-def update_model(ticker, model_name, model_path, source):
-    """Update the model.
-
-    :param ticker: the string ticker of the stock
-    :param model_name: the model file name
-    :param model_path: the model file path
-    :param source: String data source selector
-    """
-
-    print(f'Updating {model_name}...')
-    company = StockModel(ticker, source)  # uses yahoo finance data by default
-
-    with xlwings.App(visible=False) as app:
-        model_xl = app.books.open(model_path)
-        update_dashboard(model_xl.sheets('Dashboard'), company)
-        model_xl.save(model_path)
-        model_xl.close()
+model_pos = {
+    # Left side of the company info
+    "symbol": "C3",
+    "name": "C4",
+    "last_revision": "C5",
+    "next_review": "D6",
+    "watchlist": "C7",
+    "comp_group": "D7",
+    # Right side of the company info
+    "price": "G3",
+    "price_currency": "H3",
+    "shares_outstanding": "G4",
+    "report_currency": "G6",
+    "fx_rate": "G7",
+    # US market yields
+    "us_riskfree": "C10",
+    "us_bbb_yield": "C11",
+    "us_required_return": "C12",
+    # China market yields
+    "cn_riskfree": "C14",
+    "cn_on_bbb_yield": "C15",
+    "cn_off_bbb_yield": "C16",
+    "cn_required_return": "C17",
+    # HK and other market yields
+    "hk_required_return": "D12",
+    "other_required_return": "D17",
+    # Normalized Cost Structure
+    "cogs": 'C20',
+    "op_exp_less_da": 'C21',
+    "interest": 'C22',
+    "change_of_wc": 'C23',
+    "non_controlling_interests": 'C24',
+    "pre_tax_profit": 'C25',
+    # Business Indicators
+    "pre_tax_roa": 'G20',
+    "after_tax_growth": 'G21',
+    # Price Indicators
+    "pb_ratio": 'G23',
+    "ep_ratio": 'G24',
+    "payout_ratio": 'G25',
+    "dp_ratio": 'G26',
+    # Valuation
+    "lower_value": 'C29',
+    "upper_value": 'D29',
+    "value": 'F29'
+}
 
 
 def update_dashboard(dash_sheet, stock):
@@ -38,9 +58,16 @@ def update_dashboard(dash_sheet, stock):
     :param stock: the Stock object
     """
 
-    marco = smart_value.tools.marco_monitor.read_marco()
+    marco = macro_monitor.read_marco()
     dash_sheet.range(model_pos["us_riskfree"]).value = marco.us_riskfree
+    dash_sheet.range(model_pos["us_bbb_yield"]).value = marco.us_bbb_yield
+    dash_sheet.range(model_pos["us_required_return"]).value = marco.us_required_return
     dash_sheet.range(model_pos["cn_riskfree"]).value = marco.cn_riskfree
+    dash_sheet.range(model_pos["cn_on_bbb_yield"]).value = marco.cn_on_bbb_yield
+    dash_sheet.range(model_pos["cn_off_bbb_yield"]).value = marco.cn_off_bbb_yield
+    dash_sheet.range(model_pos["cn_required_return"]).value = marco.cn_required_return
+    dash_sheet.range(model_pos["hk_required_return"]).value = marco.hk_required_return
+    dash_sheet.range(model_pos["other_required_return"]).value = marco.other_required_return
     # tbc on marco update
     dash_sheet.range(model_pos["price"]).value = stock.price[0]
     dash_sheet.range(model_pos["fx_rate"]).value = stock.fx_rate

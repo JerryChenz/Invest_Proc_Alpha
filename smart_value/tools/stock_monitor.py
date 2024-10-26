@@ -4,53 +4,7 @@ from smart_value.tools import *
 from smart_value.tools.find_docs import models_folder_path
 from smart_value.tools.find_docs import macro_monitor_file_path
 from smart_value.tools.find_docs import stock_monitor_file_path
-
-model_pos = {
-    # Left side of the company info
-    "symbol": "C3",
-    "name": "C4",
-    "last_revision": "C5",
-    "next_review": "D6",
-    "watchlist": "C7",
-    "comp_group": "D7",
-    # Right side of the company info
-    "price": "G3",
-    "price_currency": "H3",
-    "shares_outstanding": "G4",
-    "report_currency": "G6",
-    "fx_rate": "G7",
-    # US market yields
-    "us_riskfree": "C10",
-    "us_bbb_yield": "C11",
-    "us_required_return": "C12",
-    # China market yields
-    "cn_riskfree": "C14",
-    "cn_on_bbb_yield": "C15",
-    "cn_off_bbb_yield": "C16",
-    "cn_required_return": "C17",
-    # HK and other market yields
-    "hk_required_return": "D12",
-    "other_required_return": "D17",
-    # Normalized Cost Structure
-    "cogs": 'C20',
-    "op_exp_less_da": 'C21',
-    "interest": 'C22',
-    "change_of_wc": 'C23',
-    "non_controlling_interests": 'C24',
-    "pre_tax_profit": 'C25',
-    # Business Indicators
-    "pre_tax_roa": 'G20',
-    "after_tax_growth": 'G21',
-    # Price Indicators
-    "pb_ratio": 'G23',
-    "ep_ratio": 'G24',
-    "payout_ratio": 'G25',
-    "dp_ratio": 'G26',
-    # Valuation
-    "lower_value": 'C29',
-    "upper_value": 'D29',
-    "value": 'F29'
-}
+from smart_value.tools.model import model_pos
 
 
 def update_monitor(quick=False):
@@ -62,7 +16,7 @@ def update_monitor(quick=False):
     opportunities = []
 
     # Step 1: Update the marco Monitor
-    marco_monitor.update_marco(macro_monitor_file_path, "Free")
+    macro_monitor.update_marco(macro_monitor_file_path, "Free")
 
     # Step 2: load and update the new valuation xlsx
     for opportunities_path in find_docs.get_model_paths():
@@ -175,5 +129,3 @@ class MonitorStock:
         self.change_of_wc = dash_sheet.range(model_pos["change_of_wc"]).value
         self.non_controlling_interests = dash_sheet.range(model_pos["non_controlling_interests"]).value
         self.pre_tax_profit = dash_sheet.range(model_pos["pre_tax_profit"]).value
-
-
