@@ -131,8 +131,6 @@ class StockModel(Stock):
 
         self.name = ticker_data.name
         self.price = ticker_data.price
-        self.shares_outstanding = ticker_data.shares
-        self.report_currency = ticker_data.report_currency
 
     def load_quote(self, market_price, price_currency, report_currency):
         """Get the quick market quote
