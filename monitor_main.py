@@ -6,5 +6,6 @@ def update_monitor():
 
     o = smart_value.tools.monitor.Monitor()
 
+
 if __name__ == '__main__':
     update_monitor()
