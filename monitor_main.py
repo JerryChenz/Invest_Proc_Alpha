@@ -1,10 +1,10 @@
-import smart_value
+from smart_value import tools
 
 
 def update_monitor():
-    """Update the pipeline monitor"""
+    """Update the stock monitor Excel"""
 
-    o = smart_value.tools.monitor.Monitor()
+    tools.monitor.update_monitor()
 
 
 if __name__ == '__main__':

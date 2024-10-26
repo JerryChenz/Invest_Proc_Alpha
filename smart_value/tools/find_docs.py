@@ -32,5 +32,3 @@ def get_model_paths():
             print("No opportunity file", "opp_file")
     else:
         return opportunities_path_list
-
-

@@ -4,8 +4,6 @@ from smart_value.tools import *
 from smart_value.tools.find_docs import models_folder_path as models_folder_path
 from smart_value.tools.find_docs import macro_monitor_file_path as macro_monitor_file_path
 from smart_value.tools.find_docs import stock_monitor_file_path as stock_monitor_file_path
-from smart_value.data.fred_data import risk_free_rate, inflation
-from smart_value.data.hkma_data import get_hk_riskfree
 
 
 def update_monitor(quick=False):
@@ -17,7 +15,7 @@ def update_monitor(quick=False):
     opportunities = []
 
     # Step 1: Update the marco Monitor
-    update_marco(macro_monitor_file_path, "Free")
+    marco_monitor.update_marco(macro_monitor_file_path, "Free")
 
     # Step 2: load and update the new valuation xlsx
     for opportunities_path in find_docs.get_model_paths():
@@ -28,45 +26,11 @@ def update_monitor(quick=False):
     # Step 3: Update the stock monitor.
     print("Updating Monitor...")
     with xlwings.App(visible=False) as app:
-        stock_monitor = app.books.open(stock_monitor_file_path)
-        update_opportunities(stock_monitor, opportunities)
-        stock_monitor.save(models_folder_path)
-        stock_monitor.close()
+        s_monitor = app.books.open(stock_monitor_file_path)
+        update_opportunities(s_monitor, opportunities)
+        s_monitor.save(models_folder_path)
+        s_monitor.close()
     print("Update completed")
-
-
-def update_marco(monitor_path, source):
-    """Update the marco data in the Macro_Monitor.xlsx file.
-
-    :param monitor_path: path of the Macro_Monitor.xlsx file
-    :param source: the API option
-    """
-
-    print("Updating Marco data...")
-    us_riskfree = 0.08
-    cn_riskfree = 0.06
-    hk_riskfree = us_riskfree
-    us_inflation = 0.02
-
-    if source == "Free":
-        us_riskfree = risk_free_rate("us")
-        # print(us_riskfree)
-        cn_riskfree = risk_free_rate("cn")
-        # print(cn_riskfree)
-        hk_riskfree = get_hk_riskfree()
-        # print(hk_riskfree)
-        us_inflation = inflation("us")
-
-    with xlwings.App(visible=False) as app:
-        marco_book = app.books.open(monitor_path)
-        macro_sheet = marco_book.sheets('Macro')
-        macro_sheet.range('D6').value = us_riskfree
-        macro_sheet.range('F6').value = cn_riskfree
-        macro_sheet.range('H6').value = hk_riskfree
-        macro_sheet.range('D7').value = us_inflation
-        marco_book.save(monitor_path)
-        marco_book.close()
-    print("Finished Marco data Update")
 
 
 def read_opportunity(opportunities_path, quick=False):
@@ -84,9 +48,9 @@ def read_opportunity(opportunities_path, quick=False):
         dash_sheet = xl_book.sheets('Dashboard')
         asset_sheet = xl_book.sheets('Asset_Model')
         if r_stock.match(str(opportunities_path)):
-            company = valuation.StockModel(dash_sheet.range('C3').value, "yq_quote")
+            company = model.StockModel(dash_sheet.range('C3').value, "yq_quote")
             if quick is False:
-                valuation.update_dashboard(dash_sheet, company)  # Update
+                model.update_dashboard(dash_sheet, company)  # Update
             xl_book.save(opportunities_path)  # xls must be saved to update the values
             op = MonitorStock(dash_sheet, asset_sheet)  # the MonitorStock object representing an opportunity
         else:
@@ -96,14 +60,14 @@ def read_opportunity(opportunities_path, quick=False):
     return op
 
 
-def update_opportunities(stock_monitor, op_list):
+def update_opportunities(s_monitor, op_list):
     """Update the opportunities sheet in the stock_monitor file
 
     :param op_list: list of stock objects
-    :param stock_monitor: xlwings stock monitor file object
+    :param s_monitor: xlwings stock monitor file object
     """
 
-    monitor_sheet = stock_monitor.sheets('Opportunities')
+    monitor_sheet = s_monitor.sheets('Opportunities')
     monitor_sheet.range('B5:S400').clear_contents()
 
     r = 5
@@ -135,7 +99,7 @@ class MonitorStock:
     Defines what data can be extracted from the valuation model and used in the Monitor.
     """
 
-    def __init__(self, dash_sheet, asset_sheet):
+    def __init__(self, dash_sheet):
         # Left side of the company info
         self.symbol = dash_sheet.range('C3').value
         self.name = dash_sheet.range('C4').value
@@ -162,7 +126,7 @@ class MonitorStock:
         self.interest = dash_sheet.range('C22').value
         self.change_of_wc = dash_sheet.range('C23').value
         self.non_controlling_interests = dash_sheet.range('C24').value
-        self.pre_tax_profit  = dash_sheet.range('C25').value
+        self.pre_tax_profit = dash_sheet.range('C25').value
         # Valuation
         self.lower_value = dash_sheet.range('C29').value
         self.upper_value = dash_sheet.range('D29').value
