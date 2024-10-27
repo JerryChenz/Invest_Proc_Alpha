@@ -33,9 +33,10 @@ model_pos = {
     "cogs": 'C20',
     "op_exp_less_da": 'C21',
     "interest": 'C22',
-    "change_of_wc": 'C23',
-    "non_controlling_interests": 'C24',
-    "pre_tax_profit": 'C25',
+    "mcx": 'C23',
+    "change_of_wc": 'C24',
+    "non_controlling_interests": 'C25',
+    "pre_tax_profit": 'C26',
     # Business Indicators
     "pre_tax_roa": 'G20',
     "after_tax_growth": 'G21',
@@ -96,14 +97,12 @@ class StockModel(Stock):
                 self.price = [market_price, price_currency]
                 self.fx_rate = yf.get_forex(self.report_currency, price_currency)
 
-            elif self.source == "yq":
+            else:
                 quote = yq.get_quote(self.symbol)
                 market_price = quote[0]
                 price_currency = quote[1]
                 self.price = [market_price, price_currency]
                 self.fx_rate = yf.get_forex(self.report_currency, price_currency)  # Use the better yfinance Forex
 
-            else:
-                raise KeyError(f"The source keyword {self.source} is invalid!")
         except KeyError as error:
-            print('Caught this error: ' + repr(error))
+            raise KeyError(f"The source keyword {self.source} is invalid!")

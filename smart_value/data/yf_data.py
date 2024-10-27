@@ -65,4 +65,4 @@ def get_forex(report_symbol, price_symbol):
         forex_code = f"{report_symbol}{price_symbol}=X"
         # print(forex_code)
         # return the average of the last 3 forex quote
-        return download(forex_code, start_date, end_date).tail(3)['Adj Close'].mean()
+        return float(download(forex_code, start_date, end_date).tail(3)['Adj Close'].mean().item())

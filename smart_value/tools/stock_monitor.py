@@ -29,7 +29,7 @@ def update_monitor(quick=False):
     with xlwings.App(visible=False) as app:
         s_monitor = app.books.open(stock_monitor_file_path)
         update_opportunities(s_monitor, opportunities)
-        s_monitor.save(models_folder_path)
+        s_monitor.save(stock_monitor_file_path)
         s_monitor.close()
     print("Update completed")
 
@@ -49,7 +49,7 @@ def read_opportunity(opportunities_path, quick=False):
         dash_sheet = xl_book.sheets('Dashboard')
         if r_stock.match(str(opportunities_path)):
             company = model.StockModel(dash_sheet.range(model_pos["symbol"]).value,
-                                       dash_sheet.range(model_pos["report_currency"]), "yq_quote")
+                                       dash_sheet.range(model_pos["report_currency"]).value, "yf")
             if quick is False:
                 model.update_dashboard(dash_sheet, company)  # Update
             xl_book.save(opportunities_path)  # xls must be saved to update the values
@@ -93,9 +93,12 @@ def update_opportunities(s_monitor, op_list):
         monitor_sheet.range((r, 15)).value = op.cogs
         monitor_sheet.range((r, 16)).value = op.op_exp_less_da
         monitor_sheet.range((r, 17)).value = op.interest
-        monitor_sheet.range((r, 18)).value = op.change_of_wc
-        monitor_sheet.range((r, 19)).value = op.non_controlling_interests
-        monitor_sheet.range((r, 20)).value = op.pre_tax_profit
+        monitor_sheet.range((r, 18)).value = op.mcx
+        monitor_sheet.range((r, 19)).value = op.change_of_wc
+        monitor_sheet.range((r, 20)).value = op.non_controlling_interests
+        monitor_sheet.range((r, 21)).value = op.pre_tax_profit
+        # Price Alert
+        monitor_sheet.range((r, 22)).value = f'=IF(D{r}<=H{r},"Y","")'
         r += 1
     print(f"Total {len(op_list)} opportunities Updated")
 
@@ -127,6 +130,7 @@ class MonitorStock:
         self.cogs = dash_sheet.range(model_pos["cogs"]).value
         self.op_exp_less_da = dash_sheet.range(model_pos["op_exp_less_da"]).value
         self.interest = dash_sheet.range(model_pos["interest"]).value
+        self.mcx = dash_sheet.range(model_pos["mcx"]).value
         self.change_of_wc = dash_sheet.range(model_pos["change_of_wc"]).value
         self.non_controlling_interests = dash_sheet.range(model_pos["non_controlling_interests"]).value
         self.pre_tax_profit = dash_sheet.range(model_pos["pre_tax_profit"]).value

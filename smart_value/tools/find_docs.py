@@ -3,8 +3,8 @@ import re
 
 # Location of the folders and documents
 models_folder_path = pathlib.Path.cwd().resolve() / 'financial_models' / 'opportunities'
-stock_monitor_file_path = models_folder_path / 'Stock_Monitor.xlsx'
-macro_monitor_file_path = models_folder_path / 'Macro_Monitor.xlsx'
+stock_monitor_file_path = pathlib.Path.cwd().resolve() / 'financial_models' / 'Stock_Monitor.xlsx'
+macro_monitor_file_path = pathlib.Path.cwd().resolve() / 'financial_models' / 'Macro_Monitor.xlsx'
 
 
 def get_model_paths():
