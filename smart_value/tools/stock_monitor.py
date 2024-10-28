@@ -98,7 +98,7 @@ def update_opportunities(s_monitor, op_list):
         monitor_sheet.range((r, 20)).value = op.non_controlling_interests
         monitor_sheet.range((r, 21)).value = op.pre_tax_profit
         # Price Alert
-        monitor_sheet.range((r, 22)).value = f'=IF(D{r}<=H{r},"Y","")'
+        monitor_sheet.range((r, 22)).value = f'=IF(D{r}<=I{r},"Y","")'
         r += 1
     print(f"Total {len(op_list)} opportunities Updated")
 
