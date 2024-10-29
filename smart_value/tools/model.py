@@ -37,9 +37,6 @@ model_pos = {
     "change_of_wc": 'C24',
     "non_controlling_interests": 'C25',
     "pre_tax_profit": 'C26',
-    # Business Indicators
-    "pre_tax_roa": 'G20',
-    "after_tax_growth": 'G21',
     # Price Indicators
     "pb_ratio": 'G23',
     "ep_ratio": 'G24',

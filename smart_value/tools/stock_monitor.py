@@ -15,16 +15,13 @@ def update_monitor(quick=False):
 
     opportunities = []
 
-    # Step 1: Update the marco Monitor
-    macro_monitor.update_marco(macro_monitor_file_path, "Free")
-
-    # Step 2: load and update the new valuation xlsx
+    # Step 1: load and update the new valuation xlsx
     for opportunities_path in find_docs.get_model_paths():
         print(f"Working with {opportunities_path}...")
         op = read_opportunity(opportunities_path, quick)  # load and update the new valuation xlsx
         opportunities.append(op)
 
-    # Step 3: Update the stock monitor.
+    # Step 2: Update the stock monitor.
     print("Updating Monitor...")
     with xlwings.App(visible=False) as app:
         s_monitor = app.books.open(stock_monitor_file_path)
