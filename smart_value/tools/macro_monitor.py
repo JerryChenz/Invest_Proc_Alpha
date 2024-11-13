@@ -16,6 +16,7 @@ macro_pos = {
     "hk_riskfree": "E3",
     "hk_required_return": "E6",
     "other_required_return": "F6",
+    "target_return": "C8"
 }
 
 
@@ -75,3 +76,4 @@ class MonitorMarco:
         self.cn_required_return = macro_sheet[macro_pos["cn_required_return"]].value
         self.hk_required_return = macro_sheet[macro_pos["hk_required_return"]].value
         self.other_required_return = macro_sheet[macro_pos["other_required_return"]].value
+        self.target_return = macro_sheet[macro_pos["target_return"]].value
