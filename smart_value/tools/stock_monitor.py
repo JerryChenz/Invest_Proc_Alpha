@@ -1,8 +1,6 @@
 import xlwings
 import re
 from smart_value.tools import *
-from smart_value.tools.find_docs import models_folder_path
-from smart_value.tools.find_docs import macro_monitor_file_path
 from smart_value.tools.find_docs import stock_monitor_file_path
 from smart_value.tools.model import model_pos
 
