@@ -33,10 +33,10 @@ model_pos = {
     # Normalized Cost Structure
     "cogs": 'C20',
     "op_exp_less_da": 'C21',
-    "interest": 'C22',
-    "mcx": 'C23',
-    "change_of_wc": 'C24',
-    "non_controlling_interests": 'C25',
+    "non_controlling_interests": 'C22',
+    "change_of_wc": 'C23',
+    "interest": 'C24',
+    "mcx": 'C25',
     "pre_tax_profit": 'C26',
     # Price Indicators
     "pb_ratio": 'G23',
