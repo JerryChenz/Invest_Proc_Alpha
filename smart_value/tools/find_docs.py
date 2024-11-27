@@ -15,7 +15,7 @@ def get_model_paths():
     """
 
     # Define the pattern used to name the models.
-    r = re.compile(".*Valuation")
+    r = re.compile(".*Valuation.*")
 
     try:
         if pathlib.Path(models_folder_path).exists():

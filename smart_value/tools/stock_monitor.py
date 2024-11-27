@@ -37,16 +37,16 @@ def read_opportunity(opportunities_path, quick=False):
     :return: an Asset object
     """
 
-    r_stock = re.compile(".*_Stock_Valuation")
+    r_stock = re.compile(".*Valuation.*")
     # get the formula results using xlwings because openpyxl doesn't evaluate formula
     with xlwings.App(visible=False) as app:
         xl_book = app.books.open(opportunities_path)
         dash_sheet = xl_book.sheets('Dashboard')
         if r_stock.match(str(opportunities_path)):
-            company = model.StockModel(dash_sheet.range(model_pos["symbol"]).value,
+            company = model_dash.StockModel(dash_sheet.range(model_pos["symbol"]).value,
                                        dash_sheet.range(model_pos["report_currency"]).value, "yf")
             if quick is False:
-                model.update_dashboard(dash_sheet, company)  # Update
+                model_dash.update_dashboard(dash_sheet, company)  # Update
             xl_book.save(opportunities_path)  # xls must be saved to update the values
             op = MonitorStock(dash_sheet)  # the MonitorStock object representing an opportunity
         else:
@@ -64,7 +64,7 @@ def update_opportunities(s_monitor, op_list):
     """
 
     monitor_sheet = s_monitor.sheets('Opportunities')
-    monitor_sheet.range('B5:S400').clear_contents()
+    monitor_sheet.range('B5:V400').clear_contents()
 
     r = 5
     for op in op_list:
@@ -87,10 +87,10 @@ def update_opportunities(s_monitor, op_list):
         # Cost Structure section
         monitor_sheet.range((r, 15)).value = op.cogs
         monitor_sheet.range((r, 16)).value = op.op_exp_less_da
-        monitor_sheet.range((r, 17)).value = op.interest
-        monitor_sheet.range((r, 18)).value = op.mcx
-        monitor_sheet.range((r, 19)).value = op.change_of_wc
-        monitor_sheet.range((r, 20)).value = op.non_controlling_interests
+        monitor_sheet.range((r, 17)).value = op.non_controlling_interests
+        monitor_sheet.range((r, 18)).value = op.change_of_wc
+        monitor_sheet.range((r, 19)).value = op.interest
+        monitor_sheet.range((r, 20)).value = op.mcx
         monitor_sheet.range((r, 21)).value = op.pre_tax_profit
         # Price Alert
         monitor_sheet.range((r, 22)).value = f'=IF(D{r}<=H{r},-(I{r}/D{r}-1),"")'

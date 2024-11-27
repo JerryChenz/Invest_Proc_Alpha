@@ -18,7 +18,7 @@ input_dict = {
 def update_models():
     """Update the dashboard of the model."""
 
-    stock_regex = re.compile(".*Stock_Valuation(?!_old)")
+    stock_regex = re.compile(".*Valuation.*(?!_old)")
     negative_regex = re.compile(".*~.*")
 
     # finds the list of all models
@@ -35,7 +35,7 @@ def update_models():
         # Step 3: copy the inputs from the marked path and paste to the updated model with inputs
         copy_inputs(marked_path, updated_path)
         # Step 4: delete the marked model
-        # pathlib.Path.unlink(marked_path)
+        pathlib.Path.unlink(marked_path)
 
 
 def new_updated_model(file_name, file_path):
@@ -45,7 +45,7 @@ def new_updated_model(file_name, file_path):
     :param file_path: the directory path for the model
     :raises FileNotFoundError: raises an exception when there is an error related to the model files or path
     """
-    stock_regex = re.compile(".*Stock_Valuation")
+    stock_regex = re.compile(".*Valuation.*")
     negative_regex = re.compile(".*~.*")
 
     try:
