@@ -1,46 +1,51 @@
+import shutil
 import xlwings
-import os
 import pathlib
 import re
 from smart_value.tools.find_docs import models_folder_path, template_folder_path
 
+input_dict = {
+    "income_statement": "C25:M33",
+    "balance_sheet": "D34:M43",
+    "dividend": "C44:M44",
+    "Others": "C48:E87",
+    "Valuation": "E91:F98"
+}
 
-def update_models(ticker, source):
-    """Update the dashboard of the model.
 
-    :param ticker: the string ticker of the stock
-    :param source: String data source selector
-    :raises FileNotFoundError: raises an exception when there is an error related to the model files or path
-    """
+def update_models():
+    """Update the dashboard of the model."""
+
+    stock_regex = re.compile(".*Stock_Valuation")
+    negative_regex = re.compile(".*~.*")
 
     # finds the list of all models
     path_list = [val_file_path for val_file_path in models_folder_path.iterdir()
                  if models_folder_path.is_dir() and val_file_path.is_file()]
-    for p in path_list:
-        # renames the existing model to mark as old
-        original_path = pathlib.Path(p)
-        print(original_path)
-        #new_path = original_path.rename('old_' + p)
-        # if ticker in p.stem:
-        #     with xlwings.App(visible=False) as app:
-        #         xl_book = app.books.open(p)
-        #         input_sheet = xl_book.sheets('Inputs')
-        #
-        #         xl_book.close()
-        # pathlib.Path.unlink(new_path)
+    opportunities_path_list = list(item for item in path_list if stock_regex.match(str(item)) and
+                                   not negative_regex.match(str(item)))
+    for p in opportunities_path_list:
+        # Step 1: renames the existing model to mark as old
+        print(f"Updating {p.name}")
+        f_name = p.stem
+        marked_path = p.with_stem(f_name + "_old")
+        # Step 2: creates a new model with the latest template
+        updated_path = new_updated_model(f_name, models_folder_path)
+        # Step 3: copy the inputs from the marked path and paste to the updated model with inputs
+        copy_inputs(marked_path, updated_path)
+        # Step 4: delete the marked model
+        pathlib.Path.unlink(marked_path)
 
 
-def new_model():
-    """Renames the existing model to mark as old, then creates a new model and update.
+def new_updated_model(file_name, file_path):
+    """creates a new model with the latest template, returns the new path
 
-    :param ticker: the string ticker of the stock
-    :param source: String data source selector
+    :param file_name: the file name of the model
+    :param file_path: the directory path for the model
     :raises FileNotFoundError: raises an exception when there is an error related to the model files or path
     """
     stock_regex = re.compile(".*Stock_Valuation")
     negative_regex = re.compile(".*~.*")
-
-    new_bool = False
 
     try:
         # Check if the template exists
@@ -58,3 +63,31 @@ def new_model():
             print("The stock_template folder doesn't exist")
         if err.args[1] == "temp_file":
             print("The template file error")
+    else:
+        # New model path
+        model_path = file_path / file_name
+        if not pathlib.Path(model_path).exists():
+            # Creates a new model file if not already exists in cwd
+            print(f'Creating {file_name}...')
+            new_bool = True
+            shutil.copy(template_path_list[0], model_path)
+
+
+def copy_inputs(old_path, new_path):
+    """reads the inputs of the model at marked_path, returns the inputs in a dictionary
+
+    :param old_path: the file path of the marked model
+    :param new_path: the file path of the new model
+    """
+
+    with xlwings.App(visible=False) as app:
+        xl_old_model = app.books.open(old_path)
+        xl_new_model = app.books.open(new_path)
+        old_input_sheet = xl_old_model.sheets('Inputs')
+        new_input_sheet = xl_new_model.sheets('Inputs')
+        for inputs in input_dict:
+            old_input_sheet.range(input_dict[inputs]).copy()
+            new_input_sheet.range(input_dict[inputs]).paste(paste="formulas")
+        xl_old_model.close()
+        xl_new_model.save(new_path)
+        xl_new_model.close()
