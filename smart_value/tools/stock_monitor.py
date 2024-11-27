@@ -2,7 +2,7 @@ import xlwings
 import re
 from smart_value.tools import *
 from smart_value.tools.find_docs import stock_monitor_file_path
-from smart_value.tools.model import model_pos
+from smart_value.tools.model_dash import model_pos
 
 
 def update_monitor(quick=False):
