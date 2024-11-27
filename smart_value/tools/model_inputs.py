@@ -1,10 +1,12 @@
 import shutil
 import xlwings
 import pathlib
+from pathlib import Path
 import re
 from smart_value.tools.find_docs import models_folder_path, template_folder_path
 
 input_dict = {
+    "info": "C4:C22",
     "income_statement": "C25:M33",
     "balance_sheet": "D34:M43",
     "dividend": "C44:M44",
@@ -16,7 +18,7 @@ input_dict = {
 def update_models():
     """Update the dashboard of the model."""
 
-    stock_regex = re.compile(".*Stock_Valuation")
+    stock_regex = re.compile(".*Stock_Valuation(?!_old)")
     negative_regex = re.compile(".*~.*")
 
     # finds the list of all models
@@ -27,14 +29,13 @@ def update_models():
     for p in opportunities_path_list:
         # Step 1: renames the existing model to mark as old
         print(f"Updating {p.name}")
-        f_name = p.stem
-        marked_path = p.with_stem(f_name + "_old")
+        marked_path = p.rename(Path(p.parent, p.stem + "_old" + p.suffix))
         # Step 2: creates a new model with the latest template
-        updated_path = new_updated_model(f_name, models_folder_path)
+        updated_path = new_updated_model(p.name, models_folder_path)
         # Step 3: copy the inputs from the marked path and paste to the updated model with inputs
         copy_inputs(marked_path, updated_path)
         # Step 4: delete the marked model
-        pathlib.Path.unlink(marked_path)
+        # pathlib.Path.unlink(marked_path)
 
 
 def new_updated_model(file_name, file_path):
@@ -69,8 +70,8 @@ def new_updated_model(file_name, file_path):
         if not pathlib.Path(model_path).exists():
             # Creates a new model file if not already exists in cwd
             print(f'Creating {file_name}...')
-            new_bool = True
             shutil.copy(template_path_list[0], model_path)
+        return model_path
 
 
 def copy_inputs(old_path, new_path):
