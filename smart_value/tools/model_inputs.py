@@ -68,7 +68,7 @@ def new_updated_model(file_name, file_path):
         # New model path
         model_path = file_path / file_name
         if not pathlib.Path(model_path).exists():
-            # Creates a new model file if not already exists in cwd
+            # Creates a new model file if not already exists
             print(f'Creating {file_name}...')
             shutil.copy(template_path_list[0], model_path)
         return model_path
