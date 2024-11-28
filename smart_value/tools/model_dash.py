@@ -102,5 +102,5 @@ class StockModel(Stock):
                 self.price = [market_price, price_currency]
                 self.fx_rate = yf.get_forex(self.report_currency, price_currency)  # Use the better yfinance Forex
 
-        except KeyError as error:
+        except KeyError:
             raise KeyError(f"The source keyword {self.source} is invalid!")

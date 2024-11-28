@@ -6,7 +6,7 @@ import re
 from smart_value.tools.find_docs import models_folder_path, template_folder_path
 
 input_dict = {
-    "info": "C4:C22",
+    "info": "C4:D22",
     "income_statement": "C25:M33",
     "balance_sheet": "D34:M43",
     "dividend": "C44:M44",
