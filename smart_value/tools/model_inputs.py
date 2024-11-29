@@ -3,6 +3,7 @@ import xlwings
 import pathlib
 from pathlib import Path
 import re
+from smart_value.tools import model_dash
 from smart_value.tools.find_docs import models_folder_path, template_folder_path
 
 input_dict = {
@@ -15,8 +16,11 @@ input_dict = {
 }
 
 
-def update_models():
-    """Update the dashboard of the model."""
+def update_models(quick=True):
+    """Update the dashboard of the model.
+
+    :param quick: update the price and forex if False
+    """
 
     stock_regex = re.compile(".*Valuation.*(?!_old)")
     negative_regex = re.compile(".*~.*")
@@ -33,7 +37,7 @@ def update_models():
         # Step 2: creates a new model with the latest template
         updated_path = new_updated_model(p.name, models_folder_path)
         # Step 3: copy the inputs from the marked path and paste to the updated model with inputs
-        copy_inputs(marked_path, updated_path)
+        copy_inputs(marked_path, updated_path, quick)
         # Step 4: delete the marked model
         pathlib.Path.unlink(marked_path)
 
@@ -74,11 +78,12 @@ def new_updated_model(file_name, file_path):
         return model_path
 
 
-def copy_inputs(old_path, new_path):
+def copy_inputs(old_path, new_path, quick=True):
     """reads the inputs of the model at marked_path, returns the inputs in a dictionary
 
     :param old_path: the file path of the marked model
     :param new_path: the file path of the new model
+    :param quick: update the price and forex if False
     """
 
     with xlwings.App(visible=False) as app:
@@ -90,5 +95,8 @@ def copy_inputs(old_path, new_path):
             old_input_sheet.range(input_dict[inputs]).copy()
             new_input_sheet.range(input_dict[inputs]).paste(paste="formulas")
         xl_old_model.close()
+        if quick is False:
+            dash_sheet = xl_new_model.sheets('Dashboard')
+            model_dash.update_dash_market(dash_sheet)
         xl_new_model.save(new_path)
         xl_new_model.close()

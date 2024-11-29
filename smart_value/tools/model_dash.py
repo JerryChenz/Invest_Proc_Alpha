@@ -50,11 +50,10 @@ model_pos = {
 }
 
 
-def update_dashboard(dash_sheet, stock):
-    """Update the Dashboard sheet.
+def update_dash_marco(dash_sheet):
+    """Update the marco parameters of the Dashboard sheet.
 
     :param dash_sheet: the xlwings object of the dashboard sheet in the model
-    :param stock: the Stock object
     """
 
     marco = macro_monitor.read_marco()
@@ -68,6 +67,17 @@ def update_dashboard(dash_sheet, stock):
     dash_sheet.range(model_pos["hk_required_return"]).value = marco.hk_required_return
     dash_sheet.range(model_pos["other_required_return"]).value = marco.other_required_return
     dash_sheet.range(model_pos["target_return"]).value = marco.target_return
+
+
+def update_dash_market(dash_sheet):
+    """Update the price and forex parameters of the Dashboard sheet.
+
+    :param dash_sheet: the xlwings object of the dashboard sheet in the model
+    """
+
+    print("updating the price and Forex rate...")
+    stock = StockModel(dash_sheet.range(model_pos["symbol"]).value,
+                       dash_sheet.range(model_pos["report_currency"]).value, "yq")
     dash_sheet.range(model_pos["price"]).value = stock.price[0]
     dash_sheet.range(model_pos["fx_rate"]).value = stock.fx_rate
 

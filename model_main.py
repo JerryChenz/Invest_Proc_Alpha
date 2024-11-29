@@ -1,4 +1,4 @@
-from smart_value import tools
+from smart_value.tools import model_inputs
 
 if __name__ == '__main__':
-    tools.model_inputs.update_models()
+    model_inputs.update_models(False)

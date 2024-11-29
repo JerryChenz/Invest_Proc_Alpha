@@ -8,7 +8,7 @@ from smart_value.tools.model_dash import model_pos
 def update_monitor(quick=False):
     """Update the Monitor file
 
-    :param quick: the option to update the monitor sheet without updating the valuations
+    :param quick: the option to update the monitor sheet without updating the price and forex
     """
 
     opportunities = []
@@ -43,10 +43,9 @@ def read_opportunity(opportunities_path, quick=False):
         xl_book = app.books.open(opportunities_path)
         dash_sheet = xl_book.sheets('Dashboard')
         if r_stock.match(str(opportunities_path)):
-            company = model_dash.StockModel(dash_sheet.range(model_pos["symbol"]).value,
-                                            dash_sheet.range(model_pos["report_currency"]).value, "yq")
+            model_dash.update_dash_marco(dash_sheet)
             if quick is False:
-                model_dash.update_dashboard(dash_sheet, company)  # Update
+                model_dash.update_dash_market(dash_sheet)
             xl_book.save(opportunities_path)  # xls must be saved to update the values
             op = MonitorStock(dash_sheet)  # the MonitorStock object representing an opportunity
         else:
