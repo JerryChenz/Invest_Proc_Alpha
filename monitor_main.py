@@ -1,4 +1,3 @@
-from smart_value import tools
 from smart_value.tools import stock_monitor, macro_monitor
 from smart_value.tools.find_docs import macro_monitor_file_path
 
