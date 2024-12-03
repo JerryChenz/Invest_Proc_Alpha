@@ -17,9 +17,11 @@ def invest_proc():
     # Create a button
     full_update_button = tk.Button(root, text="Full Update", command=full_update)
     full_update_button.pack(side=tk.LEFT)
-    full_monitor_button = tk.Button(root, text="Full Monitor Update", command=lambda: stock_monitor.update_monitor(True))
+    full_monitor_button = tk.Button(root, text="Full Monitor Update",
+                                    command=lambda: stock_monitor.update_monitor(False))
     full_monitor_button.pack(side=tk.RIGHT)
-    simple_monitor_button = tk.Button(root, text="Simple Monitor Update", command=lambda: stock_monitor.update_monitor(False))
+    simple_monitor_button = tk.Button(root, text="Simple Monitor Update",
+                                      command=lambda: stock_monitor.update_monitor(True))
     simple_monitor_button.pack(side=tk.RIGHT)
 
     # Run the application

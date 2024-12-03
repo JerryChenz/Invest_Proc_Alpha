@@ -101,7 +101,7 @@ def update_opportunities(s_monitor, op_list):
         monitor_sheet.range((r, 20)).value = op.mcx
         monitor_sheet.range((r, 21)).value = op.pre_tax_profit
         # Price Alert
-        monitor_sheet.range((r, 22)).value = f'=IF(D{r}<=H{r},-(I{r}/D{r}-1),"")'
+        monitor_sheet.range((r, 22)).value = f'=IF(D{r}<=J{r},-(I{r}/D{r}-1),"")'
         r += 1
     print(f"Total {len(op_list)} opportunities Updated")
 
