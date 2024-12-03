@@ -3,8 +3,12 @@ import xlwings
 import pathlib
 from pathlib import Path
 import re
+from openpyxl.reader.excel import load_workbook
+from smart_value.data.forex_data import get_forex_dict
+from smart_value.data.yq_data import get_quotes
 from smart_value.tools import model_dash
-from smart_value.tools.find_docs import models_folder_path, template_folder_path
+from smart_value.tools.find_docs import models_folder_path, template_folder_path, get_model_paths
+from smart_value.tools.model_dash import model_pos
 
 input_dict = {
     "info": "C4:D22",
@@ -16,20 +20,21 @@ input_dict = {
 }
 
 
-def update_models(quick=True):
+def update_models(quick=False):
     """Update the dashboard of the model.
 
     :param quick: update the price and forex if False
     """
 
-    stock_regex = re.compile(".*Valuation.*(?!_old)")
-    negative_regex = re.compile(".*~.*")
+    opportunities_path_list = get_model_paths()
 
-    # finds the list of all models
-    path_list = [val_file_path for val_file_path in models_folder_path.iterdir()
-                 if models_folder_path.is_dir() and val_file_path.is_file()]
-    opportunities_path_list = list(item for item in path_list if stock_regex.match(str(item)) and
-                                   not negative_regex.match(str(item)))
+    # Step 3: get stock prices and forex rates
+    forex_dict = {}
+    price_dict = {}
+    if quick is False:
+        forex_dict = get_forex_dict()
+        price_dict = get_price_dict(opportunities_path_list)
+
     for p in opportunities_path_list:
         # Step 1: renames the existing model to mark as old
         print(f"Updating {p.name}")
@@ -37,7 +42,7 @@ def update_models(quick=True):
         # Step 2: creates a new model with the latest template
         updated_path = new_updated_model(p.name, models_folder_path)
         # Step 3: copy the inputs from the marked path and paste to the updated model with inputs
-        copy_inputs(marked_path, updated_path, quick)
+        copy_inputs(marked_path, updated_path, quick, forex_dict, price_dict)
         # Step 4: delete the marked model
         pathlib.Path.unlink(marked_path)
 
@@ -78,12 +83,14 @@ def new_updated_model(file_name, file_path):
         return model_path
 
 
-def copy_inputs(old_path, new_path, quick=True):
+def copy_inputs(old_path, new_path, quick, forex_dict, price_dict):
     """reads the inputs of the model at marked_path, returns the inputs in a dictionary
 
     :param old_path: the file path of the marked model
     :param new_path: the file path of the new model
     :param quick: update the price and forex if False
+    :param forex_dict: forex dictionary contains the updated forex rates
+    :param price_dict: price dictionary contains the updated stock prices
     """
 
     with xlwings.App(visible=False) as app:
@@ -97,6 +104,17 @@ def copy_inputs(old_path, new_path, quick=True):
         xl_old_model.close()
         if quick is False:
             dash_sheet = xl_new_model.sheets('Dashboard')
-            model_dash.update_dash_market(dash_sheet)
+            model_dash.update_dash_market(dash_sheet, forex_dict, price_dict)
         xl_new_model.save(new_path)
         xl_new_model.close()
+
+
+def get_price_dict(opportunities_path_list):
+
+    ticker_list = []
+
+    for p in opportunities_path_list:
+        opp_wb = load_workbook(p, read_only=True, data_only=True)
+        dash_sheet = opp_wb["Dashboard"]
+        ticker_list.append(dash_sheet[model_pos["symbol"]].value)
+    return get_quotes(ticker_list)

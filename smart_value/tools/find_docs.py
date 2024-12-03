@@ -15,13 +15,15 @@ def get_model_paths():
     """
 
     # Define the pattern used to name the models.
-    r = re.compile(".*Valuation.*")
+    stock_regex = re.compile(".*Valuation.*(?!_old)")
+    negative_regex = re.compile(".*~.*")
 
     try:
         if pathlib.Path(models_folder_path).exists():
             path_list = [val_file_path for val_file_path in models_folder_path.iterdir()
                          if models_folder_path.is_dir() and val_file_path.is_file()]
-            opportunities_path_list = list(item for item in path_list if r.match(str(item)))
+            opportunities_path_list = list(item for item in path_list if stock_regex.match(str(item)) and
+                                           not negative_regex.match(str(item)))
             if len(opportunities_path_list) == 0:
                 raise FileNotFoundError("No opportunity file", "opp_file")
         else:

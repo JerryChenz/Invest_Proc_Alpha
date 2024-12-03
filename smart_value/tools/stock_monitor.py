@@ -1,22 +1,30 @@
 import xlwings
 import re
+from smart_value.data.forex_data import get_forex_dict
 from smart_value.tools import *
-from smart_value.tools.find_docs import stock_monitor_file_path
+from smart_value.tools.find_docs import stock_monitor_file_path, get_model_paths
 from smart_value.tools.model_dash import model_pos
+from smart_value.tools.model_inputs import get_price_dict
 
 
-def update_monitor(quick=False):
+def update_monitor(quick=True):
     """Update the Monitor file
 
     :param quick: the option to update the monitor sheet without updating the price and forex
     """
 
-    opportunities = []
+    opportunities_path_list = get_model_paths()
+    forex_dict = {}
+    price_dict = {}
+    if quick is False:
+        forex_dict = get_forex_dict()
+        price_dict = get_price_dict(opportunities_path_list)
 
     # Step 1: load and update the new valuation xlsx
-    for opportunities_path in find_docs.get_model_paths():
+    opportunities = []
+    for opportunities_path in opportunities_path_list:
         print(f"Working with {opportunities_path}...")
-        op = read_opportunity(opportunities_path, quick)  # load and update the new valuation xlsx
+        op = read_opportunity(opportunities_path, quick, forex_dict, price_dict)  # load and update
         opportunities.append(op)
 
     # Step 2: Update the stock monitor.
@@ -29,11 +37,13 @@ def update_monitor(quick=False):
     print("Update completed")
 
 
-def read_opportunity(opportunities_path, quick=False):
+def read_opportunity(opportunities_path, quick, forex_dict, price_dict):
     """Read all the opportunities at the opportunities_path.
 
     :param opportunities_path: path of the model in the opportunities' folder
     :param quick: the option to skip updating the models
+    :param forex_dict: forex dictionary contains the updated forex rates
+    :param price_dict: price dictionary contains the updated stock prices
     :return: an Asset object
     """
 
@@ -43,9 +53,8 @@ def read_opportunity(opportunities_path, quick=False):
         xl_book = app.books.open(opportunities_path)
         dash_sheet = xl_book.sheets('Dashboard')
         if r_stock.match(str(opportunities_path)):
-            model_dash.update_dash_marco(dash_sheet)
             if quick is False:
-                model_dash.update_dash_market(dash_sheet)
+                model_dash.update_dash_market(dash_sheet, forex_dict, price_dict)
             xl_book.save(opportunities_path)  # xls must be saved to update the values
             op = MonitorStock(dash_sheet)  # the MonitorStock object representing an opportunity
         else:

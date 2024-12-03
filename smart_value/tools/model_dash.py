@@ -1,7 +1,6 @@
 import smart_value.tools.macro_monitor as macro_monitor
 from smart_value.data import yf_data as yf
-from smart_value.data import yq_data as yq
-from smart_value.stock import Stock
+from smart_value.data.yq_data import get_price
 
 model_pos = {
     # Left side of the company info
@@ -69,48 +68,25 @@ def update_dash_marco(dash_sheet):
     dash_sheet.range(model_pos["target_return"]).value = marco.target_return
 
 
-def update_dash_market(dash_sheet):
+def update_dash_market(dash_sheet, forex_dict, price_dict):
     """Update the price and forex parameters of the Dashboard sheet.
 
     :param dash_sheet: the xlwings object of the dashboard sheet in the model
+    :param forex_dict: forex dictionary contains the updated forex rates
+    :param price_dict: price dictionary contains the updated stock prices
     """
 
-    print("updating the price and Forex rate...")
-    stock = StockModel(dash_sheet.range(model_pos["symbol"]).value,
-                       dash_sheet.range(model_pos["report_currency"]).value, "yq")
-    dash_sheet.range(model_pos["price"]).value = stock.price[0]
-    dash_sheet.range(model_pos["fx_rate"]).value = stock.fx_rate
+    price_data = get_price(dash_sheet.range(model_pos["symbol"]).value, price_dict)
+    dash_sheet.range(model_pos["price"]).value = price_data[0]  # Stock price
+    price_currency = price_data[1]
+    report_currency = dash_sheet.range(model_pos["report_currency"]).value
+    dash_sheet.range(model_pos["price_currency"]).value = price_currency
 
-
-class StockModel(Stock):
-    """Stock model class"""
-
-    def __init__(self, symbol, report_currency, source):
-        """
-        :param symbol: string ticker of the stock
-        :param source: data source selector
-        """
-        super().__init__(symbol)
-        self.report_currency = report_currency
-        self.fx_rate = None
-        self.source = source
-        self.load_attributes()
-
-    def load_attributes(self):
-        """data source selector."""
-        try:
-            if self.source == "yf":
-                market_price = yf.get_quote(self.symbol, "last_price")
-                price_currency = yf.get_quote(self.symbol, "currency")
-                self.price = [market_price, price_currency]
-                self.fx_rate = yf.get_forex(self.report_currency, price_currency)
-
-            else:
-                quote = yq.get_quote(self.symbol)
-                market_price = quote[0]
-                price_currency = quote[1]
-                self.price = [market_price, price_currency]
-                self.fx_rate = yf.get_forex(self.report_currency, price_currency)  # Use the better yfinance Forex
-
-        except KeyError:
-            raise KeyError(f"The source keyword {self.source} is invalid!")
+    forex_str = report_currency + price_currency
+    if forex_str in forex_dict:
+        dash_sheet.range(model_pos["fx_rate"]).value = forex_dict[forex_str]
+    elif report_currency == price_currency:
+        dash_sheet.range(model_pos["fx_rate"]).value = 1
+    else:  # Use the better yfinance Forex
+        print("updating Forex rate...")
+        dash_sheet.range(model_pos["fx_rate"]).value = yf.get_forex(report_currency, price_currency)
