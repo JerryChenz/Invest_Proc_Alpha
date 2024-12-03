@@ -54,6 +54,7 @@ def read_opportunity(opportunities_path, quick, forex_dict, price_dict):
         dash_sheet = xl_book.sheets('Dashboard')
         if r_stock.match(str(opportunities_path)):
             if quick is False:
+                model_dash.update_dash_marco(dash_sheet)
                 model_dash.update_dash_market(dash_sheet, forex_dict, price_dict)
                 xl_book.save(opportunities_path)  # xls must be saved to update the values
             op = MonitorStock(dash_sheet)  # the MonitorStock object representing an opportunity
