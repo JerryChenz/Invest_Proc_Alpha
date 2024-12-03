@@ -117,4 +117,5 @@ def get_price_dict(opportunities_path_list):
         opp_wb = load_workbook(p, read_only=True, data_only=True)
         dash_sheet = opp_wb["Dashboard"]
         ticker_list.append(dash_sheet[model_pos["symbol"]].value)
+        opp_wb.close()
     return get_quotes(ticker_list)
