@@ -23,7 +23,7 @@ def update_monitor(quick=True):
     # Step 1: load and update the new valuation xlsx
     opportunities = []
     for opportunities_path in opportunities_path_list:
-        print(f"Working with {opportunities_path}...")
+        print(f"Reading {opportunities_path}...")
         op = read_opportunity(opportunities_path, quick, forex_dict, price_dict)  # load and update
         opportunities.append(op)
 
@@ -55,7 +55,7 @@ def read_opportunity(opportunities_path, quick, forex_dict, price_dict):
         if r_stock.match(str(opportunities_path)):
             if quick is False:
                 model_dash.update_dash_market(dash_sheet, forex_dict, price_dict)
-            xl_book.save(opportunities_path)  # xls must be saved to update the values
+                xl_book.save(opportunities_path)  # xls must be saved to update the values
             op = MonitorStock(dash_sheet)  # the MonitorStock object representing an opportunity
         else:
             print(f"'{opportunities_path}' is incorrect")
