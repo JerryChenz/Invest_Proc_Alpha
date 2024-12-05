@@ -102,8 +102,9 @@ def copy_inputs(old_path, new_path, quick, forex_dict, price_dict):
             old_input_sheet.range(input_dict[inputs]).copy()
             new_input_sheet.range(input_dict[inputs]).paste(paste="formulas")
         xl_old_model.close()
+        dash_sheet = xl_new_model.sheets('Dashboard')
+        model_dash.update_dash_marco(dash_sheet)
         if quick is False:
-            dash_sheet = xl_new_model.sheets('Dashboard')
             model_dash.update_dash_market(dash_sheet, forex_dict, price_dict)
         xl_new_model.save(new_path)
         xl_new_model.close()
