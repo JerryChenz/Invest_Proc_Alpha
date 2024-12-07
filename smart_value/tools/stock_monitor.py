@@ -4,7 +4,7 @@ from smart_value.data.forex_data import get_forex_dict
 from smart_value.tools import *
 from smart_value.tools.find_docs import stock_monitor_file_path, get_model_paths
 from smart_value.tools.model_dash import model_pos
-from smart_value.tools.model_inputs import get_price_dict
+from smart_value.tools.model_update import get_price_dict
 
 
 def update_monitor(quick=True):

@@ -1,5 +1,5 @@
 import tkinter as tk
-from smart_value.tools import model_inputs, stock_monitor
+from smart_value.tools import model_update, stock_monitor
 
 
 def full_update():

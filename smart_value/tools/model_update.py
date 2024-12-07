@@ -7,7 +7,7 @@ from openpyxl.reader.excel import load_workbook
 from smart_value.data.forex_data import get_forex_dict
 from smart_value.data.yq_data import get_quotes
 from smart_value.tools import model_dash
-from smart_value.tools.find_docs import models_folder_path, template_folder_path, get_model_paths
+from smart_value.tools.find_docs import get_model_paths, new_latest_model
 from smart_value.tools.model_dash import model_pos
 
 input_dict = {
@@ -21,7 +21,7 @@ input_dict = {
 
 
 def update_models(quick=False):
-    """Update the dashboard of the model.
+    """Update the models in the opportunities folder with the latest template
 
     :param quick: update the price and forex if False
     """
@@ -40,47 +40,11 @@ def update_models(quick=False):
         print(f"Updating {p.name}")
         marked_path = p.rename(Path(p.parent, p.stem + "_old" + p.suffix))
         # Step 2: creates a new model with the latest template
-        updated_path = new_updated_model(p.name, models_folder_path)
+        updated_path = new_latest_model(p.name)
         # Step 3: copy the inputs from the marked path and paste to the updated model with inputs
         copy_inputs(marked_path, updated_path, quick, forex_dict, price_dict)
         # Step 4: delete the marked model
         pathlib.Path.unlink(marked_path)
-
-
-def new_updated_model(file_name, file_path):
-    """creates a new model with the latest template, returns the new path
-
-    :param file_name: the file name of the model
-    :param file_path: the directory path for the model
-    :raises FileNotFoundError: raises an exception when there is an error related to the model files or path
-    """
-    stock_regex = re.compile(".*Valuation.*")
-    negative_regex = re.compile(".*~.*")
-
-    try:
-        # Check if the template exists
-        if pathlib.Path(template_folder_path).exists():
-            path_list = [val_file_path for val_file_path in template_folder_path.iterdir()
-                         if template_folder_path.is_dir() and val_file_path.is_file()]
-            template_path_list = list(item for item in path_list if stock_regex.match(str(item)) and
-                                      not negative_regex.match(str(item)))
-            if len(template_path_list) > 1 or len(template_path_list) == 0:
-                raise FileNotFoundError("The template file error", "temp_file")
-        else:
-            raise FileNotFoundError("The stock_template folder doesn't exist", "temp_folder")
-    except FileNotFoundError as err:
-        if err.args[1] == "temp_folder":
-            print("The stock_template folder doesn't exist")
-        if err.args[1] == "temp_file":
-            print("The template file error")
-    else:
-        # New model path
-        model_path = file_path / file_name
-        if not pathlib.Path(model_path).exists():
-            # Creates a new model file if not already exists
-            print(f'Creating {file_name}...')
-            shutil.copy(template_path_list[0], model_path)
-        return model_path
 
 
 def copy_inputs(old_path, new_path, quick, forex_dict, price_dict):
