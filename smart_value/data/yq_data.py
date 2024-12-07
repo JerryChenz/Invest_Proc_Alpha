@@ -1,6 +1,7 @@
 from yahooquery import Ticker
 import time
 import pandas as pd
+from smart_value.data.yf_data import get_forex
 
 
 def get_quotes(ticker_list):
@@ -75,12 +76,14 @@ class YqStock:
         self.name = self.stock_data.quote_type[self.symbol]['shortName']
         self.price = [self.stock_data.financial_data[self.symbol]['currentPrice'],
                       self.stock_data.price[self.symbol]['currency']]
+        self.price_currency = self.stock_data.price[self.symbol]['currency']
         self.shares = self.stock_data.key_stats[self.symbol]['sharesOutstanding']
         self.report_currency = self.stock_data.financial_data[self.symbol]['financialCurrency']
         self.annual_bs = self.get_balance_sheet("annual")
         self.quarter_bs = self.get_balance_sheet("quarterly")
         self.is_df = self.get_income_statement()
         self.cf_df = self.get_cash_flow()
+        self.fx_rate = get_forex(self.report_currency, self.price_currency)
         try:
             self.last_dividend = -int(self.cf_df.loc['CashDividendsPaid'][0]) / self.shares
         except ZeroDivisionError:
@@ -176,13 +179,16 @@ class YqStock:
         """
 
         # reverses the dataframe with .iloc[:, ::-1]
-        income_statement = self.stock_data.income_statement(trailing=False).set_index('asOfDate').T.iloc[:, ::-1]
+        raw_is = self.stock_data.income_statement(trailing=False).set_index('asOfDate')
+        income_statement = raw_is[raw_is['currencyCode'] == self.report_currency].T.iloc[:, ::-1]
+        # print(income_statement.to_string())
         # Start of Cleaning: make sure the data has all the required indexes
         dummy = {"Dummy": [None, None, None, None, None]}
         is_index = ['TotalRevenue', 'CostOfRevenue', 'SellingGeneralAndAdministration', 'InterestExpense',
                     'NetIncomeCommonStockholders']
         dummy_df = pd.DataFrame(dummy, index=is_index)
         clean_is = dummy_df.join(income_statement)
+        # print(clean_is.to_string())
         is_df = clean_is.loc[is_index]
         # Ending of Cleaning: drop the dummy column after join
         is_df.drop('Dummy', inplace=True, axis=1)

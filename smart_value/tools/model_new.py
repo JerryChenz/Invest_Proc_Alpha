@@ -64,19 +64,20 @@ def new_inputs(input_sheet, company, comp_group):
 
     input_sheet.range('C4').value = company.symbol
     input_sheet.range('C5').value = company.name
-    input_sheet.range('C6').value = date.today
+    input_sheet.range('C6').value = date.today()
     input_sheet.range('C9').value = comp_group
     input_sheet.range('C10').value = company.shares
     input_sheet.range('C11').value = company.report_currency
     input_sheet.range('C12').value = company.last_fy
     input_sheet.range('C13').value = report_unit
+    input_sheet.range('C44').value = company.last_dividend
 
+    # print(company.is_df)
     for i in range(len(company.is_df.columns)):
         # income statement
         input_sheet.range((25, i + 3)).value = int(company.is_df.iloc[0, i] / report_unit)  # Sales
         input_sheet.range((26, i + 3)).value = int(company.is_df.iloc[1, i] / report_unit)  # COGS
         input_sheet.range((27, i + 3)).value = int(company.is_df.iloc[2, i] / report_unit)  # Operating Expenses
-        input_sheet.range((29, i + 3)).value = int(company.is_df.iloc[3, i] / report_unit)  # Interest Expense
 
 
 def new_dash(dash_sheet, company):
@@ -86,7 +87,7 @@ def new_dash(dash_sheet, company):
     :param company: the Stock object
     """
 
-    dash_sheet.range('G3').value = company.price
+    dash_sheet.range('G3').value = company.price[0]
     dash_sheet.range('H3').value = company.price_currency
     dash_sheet.range('G7').value = company.fx_rate
     model_dash.update_dash_marco(dash_sheet)
