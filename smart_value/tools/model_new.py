@@ -42,6 +42,7 @@ def update_new_model(ticker, comp_group, model_name, model_path):
         new_dash(model_xl.sheets('Dashboard'), company)
         model_xl.save(model_path)
         model_xl.close()
+    print(f'{model_name} update completed')
 
 
 def new_inputs(input_sheet, company, comp_group):
@@ -66,7 +67,7 @@ def new_inputs(input_sheet, company, comp_group):
     input_sheet.range('C5').value = company.name
     input_sheet.range('C6').value = date.today()
     input_sheet.range('C9').value = comp_group
-    input_sheet.range('C10').value = company.shares
+    input_sheet.range('C10').value = company.shares  # Yahoo data on shares often is wrong
     input_sheet.range('C11').value = company.report_currency
     input_sheet.range('C12').value = company.last_fy
     input_sheet.range('C13').value = report_unit

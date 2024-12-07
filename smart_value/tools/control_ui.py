@@ -17,13 +17,13 @@ def invest_proc():
 
     # Create a button
     full_update_button = tk.Button(root, text="Full Update", command=full_update)
-    full_update_button.pack(side=tk.LEFT)
+    full_update_button.grid(column=0, row=0)
     full_monitor_button = tk.Button(root, text="Full Monitor Update",
                                     command=lambda: stock_monitor.update_monitor(False))
-    full_monitor_button.pack(side=tk.RIGHT)
+    full_monitor_button.grid(column=1, row=0)
     simple_monitor_button = tk.Button(root, text="Simple Monitor Update",
                                       command=lambda: stock_monitor.update_monitor(True))
-    simple_monitor_button.pack(side=tk.RIGHT)
+    simple_monitor_button.grid(column=2, row=0)
 
     # declaring string variable for storing symbol and comp_group
     symbol_var = tk.StringVar()
@@ -38,14 +38,14 @@ def invest_proc():
     comp_entry = tk.Entry(root, textvariable=comp_var, font=('calibre', 10, 'normal'))
 
     # creating a button
-    sub_btn = tk.Button(root, text='Submit', command=lambda: new_stock_model(ticker, comp_group))
+    new_btn = tk.Button(root, text='create', command=lambda: new_stock_model(symbol_var.get(), comp_var.get()))
 
     # placing the label and entry in the required position
-    symbol_label.grid(row=0, column=0)
-    symbol_entry.grid(row=0, column=1)
-    comp_label.grid(row=1, column=0)
-    comp_entry.grid(row=1, column=1)
-    sub_btn.grid(row=2, column=1)
+    symbol_label.grid(column=0, row=1)
+    symbol_entry.grid(column=0, row=2)
+    comp_label.grid(column=1, row=1)
+    comp_entry.grid(column=1, row=2)
+    new_btn.grid(column=2, row=2)
 
     # Run the application
     root.mainloop()
