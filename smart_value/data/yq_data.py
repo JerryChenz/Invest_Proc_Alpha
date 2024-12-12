@@ -73,7 +73,10 @@ class YqStock:
 
     def load_attributes(self):
 
-        self.name = self.stock_data.quote_type[str(self.symbol)]['shortName']
+        try:
+            self.name = self.stock_data.quote_type[str(self.symbol)]['shortName']
+        except TypeError:
+            self.name = ""
         self.price = [self.stock_data.financial_data[self.symbol]['currentPrice'],
                       self.stock_data.price[self.symbol]['currency']]
         self.price_currency = self.stock_data.price[self.symbol]['currency']
