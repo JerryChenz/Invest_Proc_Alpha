@@ -29,14 +29,14 @@ model_pos = {
     "hk_required_return": "D12",
     "other_required_return": "D17",
     "target_return": "G20",
-    # Normalized Cost Structure
-    "cogs": 'C20',
-    "op_exp_less_da": 'C21',
-    "non_controlling_interests": 'C22',
-    "change_of_wc": 'C23',
+    # ROE & Cost Structure
+    "ROE": 'C20',
+    "Equity_ratio": 'C21',
+    "Sales_Turnover": 'C22',
+    "EBIT_Margin": 'C23',
     "interest": 'C24',
-    "mcx": 'C25',
-    "pre_tax_profit": 'C26',
+    "change_of_wc": 'C25',
+    "mcx": 'C26',
     # Price Indicators
     "pb_ratio": 'G23',
     "ep_ratio": 'G24',

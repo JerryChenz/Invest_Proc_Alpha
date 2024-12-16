@@ -94,13 +94,13 @@ def update_opportunities(s_monitor, op_list):
         monitor_sheet.range((r, 13)).value = op.last_revision
         monitor_sheet.range((r, 14)).value = op.next_review
         # Cost Structure section
-        monitor_sheet.range((r, 15)).value = op.cogs
-        monitor_sheet.range((r, 16)).value = op.op_exp_less_da
-        monitor_sheet.range((r, 17)).value = op.non_controlling_interests
-        monitor_sheet.range((r, 18)).value = op.change_of_wc
+        monitor_sheet.range((r, 15)).value = op.roe
+        monitor_sheet.range((r, 16)).value = op.equity_ratio
+        monitor_sheet.range((r, 17)).value = op.sales_turnover
+        monitor_sheet.range((r, 18)).value = op.ebit_margin
         monitor_sheet.range((r, 19)).value = op.interest
-        monitor_sheet.range((r, 20)).value = op.mcx
-        monitor_sheet.range((r, 21)).value = op.pre_tax_profit
+        monitor_sheet.range((r, 20)).value = op.change_of_wc
+        monitor_sheet.range((r, 21)).value = op.mcx
         # Price Alert
         monitor_sheet.range((r, 22)).value = f'=IF(D{r}<=J{r},-(I{r}/D{r}-1),"")'
         r += 1
@@ -131,10 +131,10 @@ class MonitorStock:
         self.last_revision = dash_sheet.range(model_pos["last_revision"]).value
         self.next_review = dash_sheet.range(model_pos["next_review"]).value
         # Cost Structure section
-        self.cogs = dash_sheet.range(model_pos["cogs"]).value
-        self.op_exp_less_da = dash_sheet.range(model_pos["op_exp_less_da"]).value
+        self.roe = dash_sheet.range(model_pos["ROE"]).value
+        self.equity_ratio = dash_sheet.range(model_pos["Equity_ratio"]).value
+        self.sales_turnover = dash_sheet.range(model_pos["Sales_Turnover"]).value
+        self.ebit_margin = dash_sheet.range(model_pos["EBIT_Margin"]).value
         self.interest = dash_sheet.range(model_pos["interest"]).value
-        self.mcx = dash_sheet.range(model_pos["mcx"]).value
         self.change_of_wc = dash_sheet.range(model_pos["change_of_wc"]).value
-        self.non_controlling_interests = dash_sheet.range(model_pos["non_controlling_interests"]).value
-        self.pre_tax_profit = dash_sheet.range(model_pos["pre_tax_profit"]).value
+        self.mcx = dash_sheet.range(model_pos["mcx"]).value
