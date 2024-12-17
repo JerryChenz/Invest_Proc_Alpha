@@ -80,6 +80,16 @@ def new_inputs(input_sheet, company, comp_group):
         input_sheet.range((26, i + 3)).value = int(company.is_df.iloc[1, i] / report_unit)  # COGS
         input_sheet.range((27, i + 3)).value = int(company.is_df.iloc[2, i] / report_unit)  # Operating Expenses
 
+    for j in range(len(company.annual_bs.columns)):
+        # Total Liabilities = Total Asset - TotalEquityAndMinorityInterest
+        input_sheet.range((37, j + 3)).value = (int(company.annual_bs.iloc[0, j] / report_unit)  # TotalAssets
+                                                - int(company.annual_bs.iloc[7, j] / report_unit))  # TotalEquity
+        # TotalEquityAndMinorityInterest
+        input_sheet.range((41, j + 3)).value = int(company.annual_bs.iloc[7, j] / report_unit)
+        # Non-common Interest = TotalEquityAndMinorityInterest - CommonStockEquity
+        input_sheet.range((42, j + 3)).value = (int(company.annual_bs.iloc[7, j] / report_unit)
+                                                - int(company.annual_bs.iloc[8, j] / report_unit))  # CommonStockEquity
+
 
 def new_dash(dash_sheet, company):
     """Update the Data sheet.
