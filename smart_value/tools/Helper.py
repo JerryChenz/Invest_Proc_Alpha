@@ -3,10 +3,7 @@ from smart_value.tools.find_docs import get_model_paths
 
 
 def copy_value():
-    """Update the models in the opportunities folder with the latest template
-
-    :param quick: update the price and forex if False
-    """
+    """Update the models in the opportunities folder with the latest template."""
 
     opportunities_path_list = get_model_paths()
 
@@ -16,9 +13,8 @@ def copy_value():
             xl_model = app.books.open(p)
             input_sheet = xl_model.sheets('Inputs')
             fin_sheet = xl_model.sheets('Fin_Analysis')
-            fin_sheet.range("D3:D4").copy()
-            input_sheet.range("C41:C42").paste(paste="value")
-            fin_sheet.range("I49").copy()
-            input_sheet.range("C37").paste(paste="value")
+            input_sheet.range("C41").value = fin_sheet.range("D3").value
+            input_sheet.range("C42").value = fin_sheet.range("D4").value
+            input_sheet.range("C37").value = fin_sheet.range("I49").value
             xl_model.save(p)
             xl_model.close()
