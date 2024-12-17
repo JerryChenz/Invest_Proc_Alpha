@@ -1,8 +1,6 @@
-import shutil
-import xlwings
 import pathlib
 from pathlib import Path
-import re
+import xlwings
 from openpyxl.reader.excel import load_workbook
 from smart_value.data.forex_data import get_forex_dict
 from smart_value.data.yq_data import get_quotes
@@ -13,7 +11,7 @@ from smart_value.tools.model_dash import model_pos
 input_dict = {
     "info": "C4:D22",
     "income_statement": "C25:M33",
-    "balance_sheet": "D34:M43",
+    "balance_sheet": "C34:M43",
     "dividend": "C44:M44",
     "Others": "C48:E87",
     "Valuation": "E91:F98"
@@ -28,7 +26,7 @@ def update_models(quick=False):
 
     opportunities_path_list = get_model_paths()
 
-    # Step 3: get stock prices and forex rates
+    # get stock prices and forex rates
     forex_dict = {}
     price_dict = {}
     if quick is False:

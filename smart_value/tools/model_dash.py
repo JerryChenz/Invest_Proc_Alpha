@@ -32,7 +32,7 @@ model_pos = {
     # ROE & Cost Structure
     "ROE": 'C20',
     "Equity_ratio": 'C21',
-    "Sales_Turnover": 'C22',
+    "Asset_Turnover": 'C22',
     "EBIT_Margin": 'C23',
     "interest": 'C24',
     "change_of_wc": 'C25',

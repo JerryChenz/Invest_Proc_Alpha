@@ -96,7 +96,7 @@ def update_opportunities(s_monitor, op_list):
         # Cost Structure section
         monitor_sheet.range((r, 15)).value = op.roe
         monitor_sheet.range((r, 16)).value = op.equity_ratio
-        monitor_sheet.range((r, 17)).value = op.sales_turnover
+        monitor_sheet.range((r, 17)).value = op.asset_turnover
         monitor_sheet.range((r, 18)).value = op.ebit_margin
         monitor_sheet.range((r, 19)).value = op.interest
         monitor_sheet.range((r, 20)).value = op.change_of_wc
@@ -133,7 +133,7 @@ class MonitorStock:
         # Cost Structure section
         self.roe = dash_sheet.range(model_pos["ROE"]).value
         self.equity_ratio = dash_sheet.range(model_pos["Equity_ratio"]).value
-        self.sales_turnover = dash_sheet.range(model_pos["Sales_Turnover"]).value
+        self.asset_turnover = dash_sheet.range(model_pos["Asset_Turnover"]).value
         self.ebit_margin = dash_sheet.range(model_pos["EBIT_Margin"]).value
         self.interest = dash_sheet.range(model_pos["interest"]).value
         self.change_of_wc = dash_sheet.range(model_pos["change_of_wc"]).value
