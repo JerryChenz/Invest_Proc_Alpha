@@ -31,9 +31,9 @@ model_pos = {
     "target_return": "G20",
     # ROE & Cost Structure
     "ROE": 'C20',
-    "Equity_ratio": 'C21',
+    "EBIT_Margin": 'C21',
+    "Leverage_ratio": 'C23',
     "Asset_Turnover": 'C22',
-    "EBIT_Margin": 'C23',
     "interest": 'C24',
     "change_of_wc": 'C25',
     "mcx": 'C26',
