@@ -73,9 +73,10 @@ def update_opportunities(s_monitor, op_list):
     """
 
     monitor_sheet = s_monitor.sheets('Opportunities')
-    monitor_sheet.range('B5:V400').clear_contents()
+    r = 5  # the starting row
+    final_row = len(op_list) + r + 30  # the estimated final row
+    monitor_sheet.range(f'B5:W{final_row}').clear_contents()
 
-    r = 5
     for op in op_list:
         monitor_sheet.range((r, 2)).value = op.symbol
         monitor_sheet.range((r, 3)).value = op.name
@@ -103,7 +104,7 @@ def update_opportunities(s_monitor, op_list):
         monitor_sheet.range((r, 21)).value = op.mcx
         # Price Alert
         monitor_sheet.range((r, 22)).value = f'=IFERROR((D{r}-I{r})/(H{r}-I{r}),"nm")'
-        monitor_sheet.range((r, 22)).value = op.is_hold
+        monitor_sheet.range((r, 23)).value = op.is_hold
         r += 1
     print(f"Total {len(op_list)} opportunities Updated")
 
