@@ -29,6 +29,7 @@ model_pos = {
     "hk_required_return": "D12",
     "other_required_return": "D17",
     "target_return": "G20",
+    "investment_horizon": "H20",
     # ROE & Cost Structure
     "ROE": 'C20',
     "EBIT_Margin": 'C21',
@@ -66,6 +67,7 @@ def update_dash_marco(dash_sheet):
     dash_sheet.range(model_pos["hk_required_return"]).value = marco.hk_required_return
     dash_sheet.range(model_pos["other_required_return"]).value = marco.other_required_return
     dash_sheet.range(model_pos["target_return"]).value = marco.target_return
+    dash_sheet.range(model_pos["investment_horizon"]).value = marco.investment_horizon
 
 
 def update_dash_market(dash_sheet, forex_dict, price_dict):
