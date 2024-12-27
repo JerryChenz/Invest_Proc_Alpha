@@ -11,6 +11,7 @@ model_pos = {
     "watchlist": "C7",
     "comp_group": "D7",
     # Right side of the company info
+    "is_hold": "G2",
     "price": "G3",
     "price_currency": "H3",
     "shares_outstanding": "G4",
